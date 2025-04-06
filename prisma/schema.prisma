@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model EquipmentModel {
+  id        String     @id @default(uuid())
+  name      String
+  equipments Equipment[]
+  hourlyEarnings HourlyEarning[]
+}
+
+model EquipmentState {
+  id    String  @id @default(uuid())
+  name  String  // Ex: Operando, Parado
+  histories EquipmentStateHistory[]
+  hourlyEarnings HourlyEarning[]
+}
+
+model Equipment {
+  id              String                   @id @default(uuid())
+  name            String
+  equipmentModel  EquipmentModel          @relation(fields: [equipmentModelId], references: [id])
+  equipmentModelId String
+  stateHistories  EquipmentStateHistory[]
+  positionHistory EquipmentPositionHistory[]
+}
+
+model EquipmentStateHistory {
+  id              String       @id @default(uuid())
+  equipmentId     String
+  equipment       Equipment    @relation(fields: [equipmentId], references: [id])
+  equipmentStateId String
+  state           EquipmentState @relation(fields: [equipmentStateId], references: [id])
+  date            DateTime
+}
+
+model EquipmentPositionHistory {
+  id          String     @id @default(uuid())
+  equipmentId String
+  equipment   Equipment  @relation(fields: [equipmentId], references: [id])
+  lat         Float
+  lon         Float
+  date        DateTime
+}
+
+model HourlyEarning {
+  equipmentModelId String
+  equipmentModel   EquipmentModel @relation(fields: [equipmentModelId], references: [id])
+  equipmentStateId String
+  equipmentState   EquipmentState @relation(fields: [equipmentStateId], references: [id])
+  value            Float
+
+  @@id([equipmentModelId, equipmentStateId])
+}
