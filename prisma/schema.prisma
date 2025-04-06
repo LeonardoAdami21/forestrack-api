@@ -18,6 +18,8 @@ model EquipmentModel {
   name           String
   equipments     Equipment[]
   hourlyEarnings HourlyEarning[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 }
 
 model EquipmentState {
@@ -25,6 +27,8 @@ model EquipmentState {
   name           String // Ex: Operando, Parado
   histories      EquipmentStateHistory[]
   hourlyEarnings HourlyEarning[]
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
 }
 
 model Equipment {
@@ -34,6 +38,8 @@ model Equipment {
   equipmentModelId String
   stateHistories   EquipmentStateHistory[]
   positionHistory  EquipmentPositionHistory[]
+  createdAt        DateTime                   @default(now())
+  updatedAt        DateTime                   @updatedAt
 }
 
 model EquipmentStateHistory {
@@ -43,6 +49,8 @@ model EquipmentStateHistory {
   equipmentStateId String
   state            EquipmentState @relation(fields: [equipmentStateId], references: [id])
   date             DateTime
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 }
 
 model EquipmentPositionHistory {
@@ -52,6 +60,8 @@ model EquipmentPositionHistory {
   lat         Float
   lon         Float
   date        DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model HourlyEarning {
@@ -60,6 +70,8 @@ model HourlyEarning {
   equipmentStateId String
   equipmentState   EquipmentState @relation(fields: [equipmentStateId], references: [id])
   value            Float
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   @@id([equipmentModelId, equipmentStateId])
 }
