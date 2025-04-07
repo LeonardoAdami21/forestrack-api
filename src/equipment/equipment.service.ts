@@ -1,6 +1,12 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { EQUIPMENT__REPOSITORY } from './provider/equipment.provider';
 import { PrismaClient } from '@prisma/client';
+import { FilterEquipmentDto } from './dto/filter-equipment.dto';
 
 @Injectable()
 export class EquipmentService {
@@ -9,14 +15,30 @@ export class EquipmentService {
     private readonly equipmentRepository: PrismaClient['equipment'],
   ) {}
 
-  async findAll() {
-    return this.equipmentRepository.findMany({
+  async findAll(flters?: FilterEquipmentDto) {
+    const { name, equipmentModelId, currentStateId, includeLocation } =
+      flters || {};
+    if (name && typeof name !== 'string') {
+      throw new BadRequestException('Name must be a string');
+    }
+    const equipments = await this.equipmentRepository.findMany({
+      where: {
+        name: name ? { contains: name } : undefined,
+        equipmentModelId: equipmentModelId || undefined,
+      },
       include: {
         equipmentModel: true,
-        stateHistories: true,
-        positionHistory: true,
+        positionHistory: includeLocation,
+        stateHistories: currentStateId
+          ? {
+              where: { equipmentStateId: currentStateId },
+              orderBy: { date: 'desc' },
+              take: 1,
+            }
+          : false,
       },
     });
+    return equipments;
   }
 
   async findOne(id: string) {

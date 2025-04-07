@@ -1,11 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { EquipmentModelService } from './equipment-model.service';
 import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
 } from '@nestjs/swagger';
+import { FilterEquipmentModelDto } from './dto/filter-equipment-model.dto';
 
 @Controller('equipment-model')
 export class EquipmentModelController {
@@ -19,8 +21,8 @@ export class EquipmentModelController {
     description: 'Internal server error',
   })
   @Get()
-  findAll() {
-    return this.equipmentModelService.findAll();
+  findAll(@Query() filters?: FilterEquipmentModelDto) {
+    return this.equipmentModelService.findAll(filters);
   }
 
   @ApiOperation({ summary: 'Get equipment model by id' })
