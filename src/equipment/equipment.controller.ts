@@ -1,11 +1,13 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { EquipmentService } from './equipment.service';
 import {
   ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
 } from '@nestjs/swagger';
+import { FilterEquipmentDto } from './dto/filter-equipment.dto';
 
 @Controller('equipment')
 export class EquipmentController {
@@ -15,8 +17,14 @@ export class EquipmentController {
   @ApiOkResponse({ description: 'Get all equipment' })
   @ApiInternalServerErrorResponse({ description: 'Internal server error' })
   @Get()
-  findAll() {
-    return this.equipmentService.findAll();
+  findAll(@Query() filters?: FilterEquipmentDto) {
+    const formattedLocale = filters?.includeLocation
+      ? { includeLocation: true }
+      : { includeLocation: false };
+    return this.equipmentService.findAll({
+      ...filters,
+      ...formattedLocale,
+    });
   }
 
   @ApiOperation({ summary: 'Find equipment by id' })
