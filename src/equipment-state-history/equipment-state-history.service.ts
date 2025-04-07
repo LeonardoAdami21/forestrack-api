@@ -1,6 +1,7 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { EQUIPMENT__STATE__HISTORY__REPOSITORY } from './provider/equipment-state-history.provider';
 import { PrismaClient } from '@prisma/client';
+import { FilterEquipmentStateHistoryDto } from './dto/filter-equipment-state-history.dto';
 
 @Injectable()
 export class EquipmentStateHistoryService {
@@ -9,13 +10,21 @@ export class EquipmentStateHistoryService {
     private readonly equipmentStateHistoryRepository: PrismaClient['equipmentStateHistory'],
   ) {}
 
-  async findAll() {
-    return await this.equipmentStateHistoryRepository.findMany({
+  async findAll(filter?: FilterEquipmentStateHistoryDto) {
+    const equipmentStateHistory = await this.equipmentStateHistoryRepository.findMany({
+      where: {
+        equipmentStateId: filter.equipmentStateId || undefined,
+        date: {
+          gte: filter.from ? new Date(filter.from) : undefined,
+          lte: filter.to ? new Date(filter.to) : undefined,
+        },
+      },
       include: {
-        equipment: true,
         state: true,
+        equipment: true,
       },
     });
+    return equipmentStateHistory;
   }
 
   async findOne(id: string) {
